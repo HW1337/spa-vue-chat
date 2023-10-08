@@ -1,9 +1,9 @@
 const express = require ("express");
 const app = express();
 const http = require("http").createServer(app);
-var mongodb = require("mongodb");
-var MongoClient = mongodb.MongoClient;
-var ObjectId = mongodb.ObjectId;
+const mongodb = require("mongodb");
+const MongoClient = mongodb.MongoClient;
+const ObjectId = mongodb.ObjectId;
 
 app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -19,7 +19,7 @@ const bcrypt = require("bcrypt");
 
 http.listen(process.env.PORT || 3000, function () {
     console.log("Server has been started at: "+ (process.env.PORT || 3000))
-    MongoClient.connect("mongodb://localhost:27017/", function (error, client) {
+    MongoClient.connect("mongodb://127.0.0.1:27017", function (error, client) {
         if (error) {
             console.error(error);
             return;
