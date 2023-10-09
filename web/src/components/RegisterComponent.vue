@@ -56,7 +56,7 @@ export default {
             );
              
             this.isLoading = false;
-            swal.fire("Registration", response.data.message, response.data.status)
+            swal.fire("Succes", response.data.message, "succes")
  
             if (response.data.status == "success") {
                 form.reset();
