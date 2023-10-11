@@ -17,4 +17,5 @@ const app = createApp(App)
 app.use(router)
 app.config.globalProperties.$mainURL = "http://localhost:8080"
 app.config.globalProperties.$apiURL = "http://localhost:3000"
+app.config.globalProperties.$accessTokenKey = "accessTokenKey"
 app.mount('#app')
