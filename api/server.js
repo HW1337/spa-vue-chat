@@ -16,6 +16,8 @@ app.use(function (req, res, next) {
 const expressFormidable = require("express-formidable");
 app.use(expressFormidable());
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const jwtSecret = "jwtSecret1234567890";
 
 http.listen(process.env.PORT || 3000, function () {
     console.log("Server has been started at: "+ (process.env.PORT || 3000))
@@ -24,9 +26,56 @@ http.listen(process.env.PORT || 3000, function () {
             console.error(error);
             return;
         }
-        db = client.db("menv_chat_app");
+        const db = client.db("menv_chat_app");
         global.db = db;
         console.log("Database connected");
+        app.post("/login", async function (request, result) {
+ 
+            const email = request.fields.email;
+            const password = request.fields.password;
+         
+            const user = await db.collection("users").findOne({
+                "email": email
+            });
+         
+            if (user == null) {
+                result.json({
+                    status: "error",
+                    message: "Email does not exists."
+                });
+                return;
+            }
+         
+            bcrypt.compare(password, user.password, async function (error, isVerify) {
+                if (isVerify) {
+         
+                    const accessToken = jwt.sign({
+                        "userId": user._id.toString()
+                    }, jwtSecret);
+         
+                    await db.collection("users").findOneAndUpdate({
+                        "email": email
+                    }, {
+                        $set: {
+                            "accessToken": accessToken
+                        }
+                    });
+         
+                    result.json({
+                        status: "success",
+                        message: "Login successfully.",
+                        accessToken: accessToken
+                    });
+         
+                    return;
+                }
+         
+                result.json({
+                    status: "error",
+                    message: "Password is not correct."
+                });
+            });
+        });
         app.post("/registration", async function (request, result) {
             const name = request.fields.name;
             const email = request.fields.email;
