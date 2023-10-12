@@ -45,8 +45,50 @@
 </template>
 
 <script>
-
+ 
+    import axios from "axios"
+    import swal from "sweetalert2"
+ 
     export default {
-        //
+        data() {
+            return {
+                login: false,
+                user: null
+            }
+        },
+ 
+        methods: {
+ 
+            getUser: async function () {
+                const self = this
+ 
+                if (localStorage.getItem(this.$accessTokenKey)) {
+                    const response = await axios.post(
+                        this.$apiURL + "/getUser",
+                        null,
+                        {
+                            headers: this.$headers
+                        }
+                    )
+ 
+                    if (response.data.status == "success") {
+                        this.$user = response.data.user
+                      console.log(this.$user)
+                    } else {
+                        localStorage.removeItem(this.$accessTokenKey);
+                    }
+ 
+                    this.login = (localStorage.getItem(this.$accessTokenKey) != null);
+                } else {
+                    this.login = false;
+                }
+ 
+                global.user = this.user
+            },
+        },
+ 
+        mounted: function () {
+            this.getUser();
+        }
     }
 </script>
