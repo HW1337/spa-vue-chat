@@ -19,15 +19,15 @@
                         </router-link>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item" v-if="!login">
                         <router-link class="nav-link" to="/login">Login</router-link>
                     </li>
 
-                    <li class="nav-item">
+                    <li class="nav-item" v-if="!login">
                         <router-link class="nav-link" to="/register">Register</router-link>
                     </li>
 
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" v-if="login">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="javascript:void(0);">Logout</a></li>
@@ -45,8 +45,50 @@
 </template>
 
 <script>
-
+ 
+    import axios from "axios"
+    import swal from "sweetalert2"
+ 
     export default {
-        //
+        data() {
+            return {
+                login: false,
+                user: null
+            }
+        },
+ 
+        methods: {
+ 
+            getUser: async function () {
+                const self = this
+ 
+                if (localStorage.getItem(this.$accessTokenKey)) {
+                    const response = await axios.post(
+                        this.$apiURL + "/getUser",
+                        null,
+                        {
+                            headers: this.$headers
+                        }
+                    )
+ 
+                    if (response.data.status == "success") {
+                        this.$user = response.data.user
+                      console.log(this.$user)
+                    } else {
+                        localStorage.removeItem(this.$accessTokenKey);
+                    }
+ 
+                    this.login = (localStorage.getItem(this.$accessTokenKey) != null);
+                } else {
+                    this.login = false;
+                }
+ 
+                global.user = this.user
+            },
+        },
+ 
+        mounted: function () {
+            this.getUser();
+        }
     }
 </script>
