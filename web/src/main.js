@@ -15,8 +15,8 @@ const router = createRouter ({
 
 const app = createApp(App)
 app.use(router)
-app.config.globalProperties.$mainURL = "http://localhost:8080"
-app.config.globalProperties.$apiURL = "http://localhost:3000"
+app.config.globalProperties.$mainURL = "http://127.0.0.1:8080"
+app.config.globalProperties.$apiURL = "http://127.0.0.1:3000"
 app.config.globalProperties.$accessTokenKey = "accessTokenKey"
 app.config.globalProperties.$user = null;
 app.config.globalProperties.$login = false;
