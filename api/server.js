@@ -18,6 +18,7 @@ app.use(expressFormidable());
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtSecret = "jwtSecret1234567890";
+const auth = require("./modules/auth");
 
 http.listen(process.env.PORT || 3000, function () {
     console.log("Server has been started at: "+ (process.env.PORT || 3000))
@@ -29,6 +30,15 @@ http.listen(process.env.PORT || 3000, function () {
         const db = client.db("menv_chat_app");
         global.db = db;
         console.log("Database connected");
+        app.post("/getUser", auth, async function (request, result) {
+            const user = request.user;
+         
+            result.json({
+                status: "success",
+                message: "Data has been fetched.",
+                user: user
+            });
+        });
         app.post("/login", async function (request, result) {
  
             const email = request.fields.email;
