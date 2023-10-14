@@ -22,7 +22,7 @@ const auth = require("./modules/auth");
 
 http.listen(process.env.PORT || 3000, function () {
     console.log("Server has been started at: "+ (process.env.PORT || 3000))
-    MongoClient.connect("mongodb://localhost:27017", function (error, client) {
+    MongoClient.connect("mongodb://127.0.0.1:27017", function (error, client) {
         if (error) {
             console.error(error);
             return;
