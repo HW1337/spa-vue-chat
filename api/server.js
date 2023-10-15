@@ -30,6 +30,21 @@ http.listen(process.env.PORT || 3000, function () {
         const db = client.db("menv_chat_app");
         global.db = db;
         console.log("Database connected");
+        app.post("/logout", auth, async function (request, result) {
+            const user = request.user
+            await db.collection("users").findOneAndUpdate({
+                _id: user._id
+            }, {
+                $set: {
+                    accessToken: ""
+                }
+            })
+         
+            result.json({
+                status: "success",
+                message: "Logout successfully."
+            })
+        })
         app.post("/getUser", auth, async function (request, result) {
             const user = request.user;
          
