@@ -28,9 +28,9 @@
                     </li>
 
                     <li class="nav-item dropdown" v-if="login">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                        <a class="nav-link dropdown-toggle" href="#" v-text="$user.name" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="javascript:void(0);">Logout</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0);" v-on:click="doLogout">Logout</a></li>
                         </div>
                     </li>
                 </ul>
@@ -58,7 +58,23 @@
         },
  
         methods: {
+            doLogout: async function () {
+                const response = await axios.post(
+                    this.$apiURL + "/logout",
+                    null,
+                    {
+                        headers: this.$headers
+                    }
+    );
  
+    if (response.data.status == "success") {
+        localStorage.removeItem(this.$accessTokenKey)
+ 
+        window.location.href = "/login"
+    } else {
+        swal.fire("Error", response.data.message, "error");
+    }
+},
             getUser: async function () {
                 const self = this
  
