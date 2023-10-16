@@ -19,17 +19,20 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtSecret = "jwtSecret1234567890";
 const auth = require("./modules/auth");
-
-http.listen(process.env.PORT || 3000, function () {
-    console.log("Server has been started at: "+ (process.env.PORT || 3000))
-    MongoClient.connect("mongodb://127.0.0.1:27017", function (error, client) {
-        if (error) {
-            console.error(error);
-            return;
-        }
-        const db = client.db("menv_chat_app");
+const contact = require("./modules/contact");
+const port = process.env.PORT || 3000;
+app.listen(port, async () => {
+    try {
+        console.log("Сервер запущен на порту: " + port);
+        const client = await MongoClient.connect("mongodb://127.0.0.1:27017");
+        const db = client.db("spa_vue_chat");
         global.db = db;
-        console.log("Database connected");
+        console.log("База данных подключена");
+    } catch (error) {
+        console.error("Ошибка при запуске сервера:", error);
+    }	
+        contact.init(app, express);
+
         app.post("/logout", auth, async function (request, result) {
             const user = request.user
             await db.collection("users").findOneAndUpdate({
@@ -146,4 +149,3 @@ http.listen(process.env.PORT || 3000, function () {
             });
         });
     });
-});
