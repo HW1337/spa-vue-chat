@@ -4,6 +4,15 @@ module.exports = {
  
     init: function (app, express) {
         const router = express.Router();
+        router.post("/fetch", auth, async function (request, result) {
+            const user = request.user;
+         
+            result.json({
+                status: "success",
+                message: "Contacts has been fetched.",
+                contacts: user.contacts
+            });
+        });
  
         router.post("/save", auth, async function (request, result) {
             const name = request.fields.name;
