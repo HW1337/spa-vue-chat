@@ -5,12 +5,17 @@
                 <router-link class="btn btn-primary" to="/contacts/add">Add Contact</router-link>
             </div>
         </div>
+        	
+        <ContactComponent />
     </div>
 </template>
  
 <script>
+ import ContactComponent from "./ContactComponent"
      
-    export default {
-        //
-    }
+     export default {
+         components: {
+             ContactComponent
+         }
+     }
 </script>

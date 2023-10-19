@@ -29,7 +29,7 @@
 </template>
  
 <script>
- import axios from "axios"
+    import axios from "axios"
     import swal from "sweetalert2"
  
     export default {
