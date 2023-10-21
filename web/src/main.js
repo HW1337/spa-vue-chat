@@ -5,12 +5,15 @@ import RegisterComponent from "./components/RegisterComponent.vue"
 import LoginComponent from "./components/LoginComponent.vue"
 import HomeComponent from "./components/HomeComponent.vue"
 import AddContactComponent from "./components/AddContactComponent.vue"
+import ChatComponent from "./components/ChatComponent.vue"
+ 
 
 const routes = [
     { path: "/register", component: RegisterComponent },
     { path: "/login", component: LoginComponent },
     { path: '/', component: HomeComponent },
     { path: "/contacts/add", component: AddContactComponent },
+    { path: "/chat/:email", component: ChatComponent }
 ]
 const router = createRouter ({
     history: createWebHistory(),
