@@ -20,6 +20,7 @@ const jwt = require("jsonwebtoken");
 const jwtSecret = "jwtSecret1234567890";
 const auth = require("./modules/auth");
 const contact = require("./modules/contact");
+const chat = require("./modules/chat");
 const port = process.env.PORT || 3000;
 app.listen(port, async () => {
     try {
@@ -32,6 +33,7 @@ app.listen(port, async () => {
         console.error("Ошибка при запуске сервера:", error);
     }	
         contact.init(app, express);
+        chat.init(app, express);
 
         app.post("/logout", auth, async function (request, result) {
             const user = request.user
