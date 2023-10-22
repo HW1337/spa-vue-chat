@@ -31,8 +31,8 @@
                         <div class="chat-message clearfix">
                             <div class="input-group mb-0">
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control" placeholder="Enter text here..." />
-                                    <button class="btn btn-primary" type="button">Send</button>
+                                    <input type="text" class="form-control" placeholder="Enter text here..." v-model="message" />
+                                    <button class="btn btn-primary" v-on:click="sendMessage" type="button">Send</button>
                                 </div>
                             </div>
                         </div>
@@ -52,8 +52,34 @@
     export default {
         data() {
             return {
+                message: "",
+                page: 0,
                 email: this.$route.params.email,
             }
-        }
+        },
+        methods: {
+ 
+            sendMessage: async function () {
+
+                const formData = new FormData()
+                formData.append("email", this.email)
+                formData.append("message", this.message)
+
+                const response = await axios.post(
+                     this.$apiURL + "/chat/send",
+                    formData,
+                    {
+                        headers: this.$headers
+                    }
+                    )
+                console.log(response)
+
+                if (response.data.status == "success") {
+                    this.message = ""
+                } else {
+                    swal.fire("Error", response.data.message, "error")
+                }
+            },
+        },
     }
 </script>
