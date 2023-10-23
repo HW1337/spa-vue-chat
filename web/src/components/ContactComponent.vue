@@ -20,6 +20,7 @@
                     <tr v-for="contact in contacts" v-bind:key="contact._id">
                         <td>
                             <span v-text="contact.name"></span>
+                            <span v-if="(contact.unreadMessages > 0)" v-text="' (' + contact.unreadMessages + ')'" class="text-danger"></span>
                         </td>
     <td v-text="contact.email"></td>
     <td style="display: flex;">
