@@ -23,11 +23,118 @@ let encrypt = function (text) {
     };
 };
  
+let decrypt = function (text) {
+    const origionalData = Buffer.from(text.iv, 'base64') 
+    const decipher = crypto.createDecipheriv(algorithm, key, origionalData);
+    let decryptedData = decipher.update(text.encryptedData, "hex", "utf-8");
+    decryptedData += decipher.final("utf8");
+    return decryptedData;
+};
 module.exports = {
  
     init: function (app, express) {
         const self = this;
         const router = express.Router();
+        router.post("/fetch", auth, async function (request, result) {
+            const user = request.user;
+            const email = request.fields.email;
+            const page = request.fields.page ?? 0;
+            const limit = 30;
+         
+            if (!email) {
+                result.json({
+                    status: "error",
+                    message: "Please enter all fields."
+                });
+                return;
+            }
+         
+            const receiver = await db.collection("users").findOne({
+                email: email
+            });
+         
+            if (receiver == null) {
+                result.json({
+                    status: "error",
+                    message: "The receiver is not a member of Chat Station."
+                });
+                return;
+            }
+         
+            const messages = await db.collection("messages").find({
+                $or: [{
+                    "sender._id": user._id,
+                    "receiver._id": receiver._id
+                }, {
+                    "sender._id": receiver._id,
+                    "receiver._id": user._id
+                }]
+            })
+                .sort({"createdAt": -1})
+                .skip(page * limit)
+                .limit(limit)
+                .toArray();
+         
+            const data = [];
+            for (let a = 0; a < messages.length; a++) {
+                data.push({
+                    _id: messages[a]._id.toString(),
+                    message: decrypt(messages[a].message),
+                    sender: {
+                        email: messages[a].sender.email,
+                        name: messages[a].sender.name
+                    },
+                    receiver: {
+                        email: messages[a].receiver.email,
+                        name: messages[a].receiver.name
+                    },
+                    isRead: messages[a].isRead,
+                    createdAt: messages[a].createdAt
+                });
+            }
+         
+            let unreadMessages = 0;
+            for (let a = 0; a < data.length; a++) {
+                if (data[a].receiver.email == user.email && !data[a].isRead) {
+                    await db.collection("messages").updateMany({
+                        _id: ObjectId(data[a]._id)
+                    }, {
+                        $set: {
+                            "isRead": true
+                        }
+                    })
+         
+                    unreadMessages++;
+                }
+            }
+         
+            await db.collection("users").findOneAndUpdate({
+                $and: [{
+                    "_id": user._id
+                }, {
+                    "contacts.email": email
+                }]
+            }, {
+                $inc: {
+                    "contacts.$.unreadMessages": -unreadMessages
+                }
+            });
+         
+            result.json({
+                status: "success",
+                message: "Messages has been fetched.",
+                messages: data,
+                user: {
+                    email: user.email,
+                    name: user.name,
+                    contacts: user.contacts
+                },
+                receiver: {
+                    email: receiver.email,
+                    name: receiver.name
+                }
+            });
+        });
         router.post("/send", auth, async function (request, result) {
             const user = request.user;
             const email = request.fields.email;

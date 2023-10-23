@@ -58,6 +58,30 @@
             }
         },
         methods: {
+            getData: async function () {
+                if (this.email == null) {
+                    return
+                }
+            
+                const formData = new FormData()
+                formData.append("email", this.email)
+                formData.append("page", this.page)
+            
+                const response = await axios.post(
+                    this.$apiURL + "/chat/fetch",
+                    formData,
+                    {
+                        headers: this.$headers
+                    }
+                )
+                console.log(response)
+            
+                if (response.data.status == "success") {
+                    //
+                } else {
+                    swal.fire("Error", response.data.message, "error")
+                }
+            },
  
             sendMessage: async function () {
 
@@ -81,5 +105,8 @@
                 }
             },
         },
+        mounted() {
+            this.getData()
+        }
     }
 </script>
