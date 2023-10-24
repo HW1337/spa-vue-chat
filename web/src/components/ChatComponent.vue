@@ -12,12 +12,14 @@
                                     </a>
  
                                     <div class="chat-about">
-                                        <!-- receiver name goes here -->
+                                        <h6 class="m-b-0 text-white" v-if="receiver != null" v-text="receiver.name" style="margin-bottom: 0px; position: relative; top: 10px;"></h6>
                                     </div>
                                 </div>
  
                                 <div class="col-lg-6 hidden-sm text-right text-white">
-                                    <!-- attachment goes here -->
+                                    <span v-if="attachment != null" style="margin-right: 10px; position: relative; top: 7px;" v-text="attachment.name"></span>
+                                    <a href="javascript:void(0);" class="btn btn-outline-secondary pull-right text-white" v-on:click="selectFile"><i class="fa fa-paperclip"></i></a>
+                                    <input type="file" id="attachment" style="display: none;" v-on:change="fileSelected" />
                                 </div>
                             </div>
                         </div>
@@ -65,9 +67,22 @@
                 email: this.$route.params.email,
                 messages: [],
                 receiver: null,
+                attachment: null,
             }
         },
         methods: {
+            
+            fileSelected: function () {
+            const files = event.target.files
+            if (files.length > 0) {
+                this.attachment = files[0]
+                }
+            },
+
+            selectFile: function () {
+                document.getElementById("attachment").click()
+            },
+
             getMessageTime: function (time) {
                 const dateObj = new Date(time)
                 let timeStr = dateObj.getFullYear() + "-" + (dateObj.getMonth() + 1) + "-" + dateObj.getDate() + " " + dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds()
@@ -117,10 +132,11 @@
                         headers: this.$headers
                     }
                     )
-                console.log(response)
+                //console.log(response)
 
                 if (response.data.status == "success") {
                     this.message = ""
+                    this.messages.push(response.data.messageObject)
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }
