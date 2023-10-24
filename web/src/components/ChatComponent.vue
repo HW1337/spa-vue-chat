@@ -24,7 +24,15 @@
  
                         <div class="chat-history">
                             <ul class="m-b-0">
-                                <!-- all messages gone here -->
+                                <li v-for="msg in messages" class="clearfix" v-bind:key="msg._id">
+                                    <div v-bind:class="'message-data ' + (user != null && user.email == msg.sender.email ? 'text-right' : '')">
+                                        <span class="message-data-time text-white" v-text="getMessageTime(msg.createdAt)"></span>
+                                        <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar" style="width: 50px;" />
+                                    </div>
+                                    <div v-bind:class="'message ' + (user != null && user.email == msg.sender.email ? 'my-message float-right' : 'other-message')">
+                                        <p v-text="msg.message" v-bind:class="(user != null && user.email == msg.sender.email ? 'text-right' : '')" style="margin-bottom: 0px;"></p>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
  
@@ -55,9 +63,16 @@
                 message: "",
                 page: 0,
                 email: this.$route.params.email,
+                messages: [],
+                receiver: null,
             }
         },
         methods: {
+            getMessageTime: function (time) {
+                const dateObj = new Date(time)
+                let timeStr = dateObj.getFullYear() + "-" + (dateObj.getMonth() + 1) + "-" + dateObj.getDate() + " " + dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds()
+                return timeStr
+            },
             getData: async function () {
                 if (this.email == null) {
                     return
@@ -74,10 +89,16 @@
                         headers: this.$headers
                     }
                 )
-                console.log(response)
+                //console.log(response)
             
                 if (response.data.status == "success") {
-                    //
+                    if (response.data.status == "success") {
+                        for (let a = 0; a < response.data.messages.length; a++) {
+                            this.messages.unshift(response.data.messages[a])
+                        }
+    this.receiver = response.data.receiver
+    this.user = response.data.user
+}
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }
