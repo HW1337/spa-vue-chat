@@ -2,9 +2,10 @@ const mongodb = require("mongodb");
 const ObjectId = mongodb.ObjectId;
  
 const auth = require("./auth");
+const fileSystem = require("fs");
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc'; 
-const key = "my-secret-key-for-chat-project"; 
+const key = "i-my-secret-key-for-chat-project"; 
 
 let encrypt = function (text) {
     const iv = crypto.randomBytes(16);
@@ -139,6 +140,7 @@ module.exports = {
             const user = request.user;
             const email = request.fields.email;
             const message = request.fields.message;
+            const attachment = request.files.attachment;
             const createdAt = new Date().getTime();
          
             if (!email || !message) {
@@ -178,6 +180,42 @@ module.exports = {
                 isRead: false,
                 createdAt: createdAt
             };
+            if (attachment != null && attachment.size > 0) {
+                if (!fileSystem.existsSync("uploads/" + user.email)){
+                    fileSystem.mkdirSync("uploads/" + user.email);
+                }
+             
+                const dateObj = new Date();
+                const datetimeStr = dateObj.getFullYear() + "-" + (dateObj.getMonth() + 1) + "-" + dateObj.getDate() + " " + dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
+                const fileName = "ChatStation-" + datetimeStr + "-" + attachment.name;
+                const filePath = "uploads/" + user.email + "/" + fileName;
+             
+                object.attachment = {
+                    size: attachment.size,
+                    path: filePath,
+                    name: fileName,
+                    displayName: attachment.name,
+                    type: attachment.type
+                };
+             
+                fileSystem.readFile(attachment.path, function (error, data) {
+                    if (error) {
+                        console.error(error);
+                    }
+             
+                    fileSystem.writeFile(filePath, data, function (error) {
+                        if (error) {
+                            console.error(error);
+                        }
+                    });
+             
+                    fileSystem.unlink(attachment.path, function (error) {
+                        if (error) {
+                            console.error(error);
+                        }
+                    });
+                });
+            }
             const document = await db.collection("messages").insertOne(object);
          
             await db.collection("users").findOneAndUpdate({
