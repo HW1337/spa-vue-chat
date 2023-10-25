@@ -2,7 +2,8 @@ const mongodb = require("mongodb");
 const ObjectId = mongodb.ObjectId;
  
 const auth = require("./auth");
-const fileSystem = require("fs");
+require("./globals");
+const fileSystem = require('fs');
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc'; 
 const key = "i-my-secret-key-for-chat-project"; 
@@ -78,6 +79,11 @@ module.exports = {
          
             const data = [];
             for (let a = 0; a < messages.length; a++) {
+                let attachment = null;
+                if (messages[a].attachment != null) {
+                    attachment = messages[a].attachment;
+                    attachment.path = baseURL + "/chat/attachment/" + messages[a]._id;
+                }
                 data.push({
                     _id: messages[a]._id.toString(),
                     message: decrypt(messages[a].message),
@@ -90,6 +96,7 @@ module.exports = {
                         name: messages[a].receiver.name
                     },
                     isRead: messages[a].isRead,
+                    attachment: attachment,
                     createdAt: messages[a].createdAt
                 });
             }
