@@ -26,7 +26,7 @@ app.listen(port, async () => {
     try {
         console.log("Сервер запущен на порту: " + port);
         const client = await MongoClient.connect("mongodb://127.0.0.1:27017");
-        const db = client.db("spa_vue_chat");
+        const db = client.db("spa-vue-chat");
         global.db = db;
         console.log("База данных подключена");
     } catch (error) {
