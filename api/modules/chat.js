@@ -32,11 +32,55 @@ let decrypt = function (text) {
     decryptedData += decipher.final("utf8");
     return decryptedData;
 };
+
+let base64Encode = function(file) {
+    var bitmap = fileSystem.readFileSync(file);
+    return new Buffer.from(bitmap).toString('base64');
+};
+
 module.exports = {
  
     init: function (app, express) {
         const self = this;
         const router = express.Router();
+
+        router.post("/attachment", auth, async function (request, result) {
+            const messageId = request.fields.messageId;
+            const user = request.user;
+         
+            const message = await db.collection("messages").findOne({
+                _id: ObjectId(messageId)
+            });
+         
+            if (message == null) {
+                result.status(404).json({
+                    status: "error",
+                    message: "Message not found."
+                });
+                return;
+            }
+         
+            const isSender = (message.sender._id == user._id.toString());
+            const isReceiver = (message.receiver._id == user._id.toString());
+         
+            if (!(isSender || isReceiver)) {
+                result.status(401).json({
+                    status: "error",
+                    message: "You are not authorized for viewing this attachment."
+                });
+                return;
+            }
+         
+            let attachment = message.attachment;
+            const base64Str = "data:" + attachment.type + ";base64," + base64Encode(attachment.path);
+            result.json({
+                status: "success",
+                message: "Attachment has been fetched",
+                base64Str: base64Str,
+                fileName: attachment.displayName
+            });
+        });
+
         router.post("/fetch", auth, async function (request, result) {
             const user = request.user;
             const email = request.fields.email;
@@ -84,6 +128,7 @@ module.exports = {
                     attachment = messages[a].attachment;
                     attachment.path = baseURL + "/chat/attachment/" + messages[a]._id;
                 }
+                
                 data.push({
                     _id: messages[a]._id.toString(),
                     message: decrypt(messages[a].message),
