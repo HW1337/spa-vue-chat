@@ -39,6 +39,7 @@ let base64Encode = function(file) {
 };
 
 module.exports = {
+    socketIO: null,
  
     init: function (app, express) {
         const self = this;
@@ -291,6 +292,12 @@ module.exports = {
                 createdAt: createdAt
             };
          
+            if (typeof global.users[receiver.email] !== "undefined") {
+                self.socketIO.to(global.users[receiver.email]).emit("sendMessage", {
+                    title: "New message has been received.",
+                    data: messageObject
+                });
+            }
             result.json({
                 status: "success",
                 message: "Message has been sent.",
