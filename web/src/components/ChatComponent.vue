@@ -62,6 +62,8 @@
     import "../../public/assets/css/chat.css"
     import axios from "axios"
     import swal from "sweetalert2"
+    import store from "../../vuex/store"
+	
  
     export default {
         data() {
@@ -69,11 +71,15 @@
                 message: "",
                 page: 0,
                 email: this.$route.params.email,
-                messages: [],
                 receiver: null,
                 attachment: null,
                 base64Str: "",
                 downloadFileName: ""
+            }
+        },
+        computed: {
+            messages() {
+                return store.getters.getMessages
             }
         },
         methods: {
@@ -145,7 +151,7 @@
                 if (response.data.status == "success") {
 
                         for (let a = 0; a < response.data.messages.length; a++) {
-                            this.messages.unshift(response.data.messages[a])
+                                store.commit("prependMessage", response.data.messages[a])
                         }
                         this.receiver = response.data.receiver
                         this.user = response.data.user
@@ -176,7 +182,7 @@
                     this.message = ""
                     this.attachment = null
                     document.getElementById("attachment").value = null
-                    this.messages.push(response.data.messageObject)
+                    store.commit("appendMessage", response.data.messageObject)
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }
