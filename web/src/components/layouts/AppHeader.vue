@@ -49,6 +49,7 @@
     import axios from "axios"
     import swal from "sweetalert2"
     import { io } from 'socket.io-client'
+    import store from "../../vuex/store"
  
     export default {
         data() {
@@ -92,6 +93,9 @@
                         this.$user = response.data.user
                         socketIO.emit("connected", this.$user.email)
                         socketIO.on("sendMessage", async function (data) {
+                            if (self.$route.path == "/chat/" + data.data.sender.email) {
+                                store.commit("appendMessage", data.data)
+                            }
                             const Toast = swal.mixin({
                                 toast: true,
                                 position: 'bottom-right',
