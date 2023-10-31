@@ -21,12 +21,6 @@ const jwtSecret = "jwtSecret1234567890";
 const auth = require("./modules/auth");
 const contact = require("./modules/contact");
 const chat = require("./modules/chat");
-const socketIO = require("socket.io")(http, {
-    cors: {
-        origin: ["http://localhost:8080"]
-    }
-});
-global.users = [];
 const port = process.env.PORT || 3000;
 app.listen(port, async () => {
     try {
@@ -35,14 +29,6 @@ app.listen(port, async () => {
         const db = client.db("spa-vue-chat");
         global.db = db;
         console.log("База данных подключена");
-        socketIO.on("connection", function (socket) {
- 
-            socket.on("connected", function (email) {
-                users[email] = socket.id;
-         
-                console.log(users);
-            });
-        });
     } catch (error) {
         console.error("Ошибка при запуске сервера:", error);
     }	

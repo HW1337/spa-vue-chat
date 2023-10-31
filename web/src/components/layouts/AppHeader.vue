@@ -48,7 +48,6 @@
  
     import axios from "axios"
     import swal from "sweetalert2"
-    import { io } from 'socket.io-client'
  
     export default {
         data() {
@@ -90,23 +89,7 @@
  
                     if (response.data.status == "success") {
                         this.$user = response.data.user
-                        socketIO.emit("connected", this.$user.email)
-                        socketIO.on("sendMessage", async function (data) {
-                            const Toast = swal.mixin({
-                                toast: true,
-                                position: 'bottom-right',
-                                customClass: {
-                                    popup: 'colored-toast'
-                                },
-                                showConfirmButton: false,
-                                    timer: 10000,
-                                    timerProgressBar: true
-                                })
-                            
-                            await Toast.fire({
-                                title: data.title
-                            })
-                        })
+                      console.log(this.$user)
                     } else {
                         localStorage.removeItem(this.$accessTokenKey);
                     }
@@ -122,7 +105,6 @@
  
         mounted: function () {
             this.getUser();
-            global.socketIO = io(this.$apiURL)
         }
     }
 </script>
