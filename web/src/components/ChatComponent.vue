@@ -54,7 +54,6 @@
             </div>
         </div>
     </div>
-    <a v-bind:href="base64Str" ref="btnDownloadAttachment" v-bind:download="downloadFileName"></a>
 </template>
  
 <script>
@@ -72,42 +71,10 @@
                 messages: [],
                 receiver: null,
                 attachment: null,
-                base64Str: "",
-                downloadFileName: ""
             }
         },
         methods: {
-            downloadAttachment: async function () {
-                const anchor = event.target
-                const id = anchor.getAttribute("data-id")
-                const originalHtml = anchor.innerHTML
-                anchor.innerHTML = "Loading..."
             
-                const formData = new FormData()
-                formData.append("messageId", id)
-                
-                const response = await axios.post(
-                    this.$apiURL + "/chat/attachment",
-                    formData,
-                    {
-                        headers: this.$headers
-                    }
-                )
-            
-                if (response.data.status == "success") {
-                    this.base64Str = response.data.base64Str
-                    this.downloadFileName = response.data.fileName
-                    
-                    const btnDownloadAttachment = this.$refs["btnDownloadAttachment"]
-                    setTimeout(function () {
-                        btnDownloadAttachment.click()
-                        anchor.innerHTML = originalHtml
-                    }, 500)
-                } else {
-                    swal.fire("Error", response.data.message, "error")
-                }
-            },
-
             fileSelected: function () {
             const files = event.target.files
             if (files.length > 0) {
