@@ -33,9 +33,6 @@
                                     </div>
                                     <div v-bind:class="'message ' + (user != null && user.email == msg.sender.email ? 'my-message float-right' : 'other-message')">
                                         <p v-text="msg.message" v-bind:class="(user != null && user.email == msg.sender.email ? 'text-right' : '')" style="margin-bottom: 0px;"></p>
-                                        <template v-if="msg.attachment != null">
-                                            <a href="javascript:void(0)" v-bind:data-id="msg._id" v-on:click.prevent="downloadAttachment" v-text="msg.attachment.displayName" class="text-info" target="_blank"></a>
-                                        </template>
                                     </div>
                                 </li>
                             </ul>
