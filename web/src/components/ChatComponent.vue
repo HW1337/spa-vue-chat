@@ -77,15 +77,6 @@
                 downloadFileName: ""
             }
         },
-
-        watch: {
-            $route: function (to, from) {
-                if (from.href.includes("/chat/")) {
-                    store.commit("setMessages", [])
-                }
-            }
-        },
-
         computed: {
             messages() {
                 return store.getters.getMessages
