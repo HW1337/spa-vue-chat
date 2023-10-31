@@ -3,11 +3,15 @@ import { createStore } from "vuex"
 export default createStore({
     state() {
         return {
-            messages: []
+            messages: [],
+            contacts: []
         }
     },
  
     mutations: {
+        setContacts (state, newContacts) {
+            state.contacts = newContacts
+        },
         appendMessage (state, newMessage) {
             state.messages.push(newMessage)
         },
@@ -22,6 +26,9 @@ export default createStore({
     },
  
     getters: {
+        getContacts (state) {
+            return state.contacts
+        },
         getMessages (state) {
             return state.messages
         }
