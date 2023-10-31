@@ -48,7 +48,6 @@ app.listen(port, async () => {
     }	
         contact.init(app, express);
         chat.init(app, express);
-        chat.socketIO = socketIO;
 
         app.post("/logout", auth, async function (request, result) {
             const user = request.user
