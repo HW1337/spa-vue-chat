@@ -106,16 +106,17 @@
                     {
                         headers: this.$headers
                     }
-                    )
+                )
                 //console.log(response)
             
                 if (response.data.status == "success") {
-
+                    if (response.data.status == "success") {
                         for (let a = 0; a < response.data.messages.length; a++) {
                             this.messages.unshift(response.data.messages[a])
                         }
-                        this.receiver = response.data.receiver
-                        this.user = response.data.user
+    this.receiver = response.data.receiver
+    this.user = response.data.user
+}
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }
