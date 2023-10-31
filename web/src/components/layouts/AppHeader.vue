@@ -96,13 +96,6 @@
                             if (self.$route.path == "/chat/" + data.data.sender.email) {
                                 store.commit("appendMessage", data.data)
                             }
-                            let tempContacts = self.$user.contacts
-                            for (let a = 0; a < tempContacts.length; a++) {
-                                if (tempContacts[a]._id == data.data.sender._id) {
-                                    tempContacts[a].unreadMessages++
-                                }
-                            }
-                            store.commit("setContacts", tempContacts)
                             const Toast = swal.mixin({
                                 toast: true,
                                 position: 'bottom-right',
