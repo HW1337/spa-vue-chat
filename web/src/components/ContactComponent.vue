@@ -44,15 +44,10 @@
     export default {
         data() {
             return {
-                
+                contacts: []
             }
         },
-        
-        computed: {
-            contacts() {
-                return store.getters.getContacts
-            }
-        },
+ 
         methods: {
             deleteContact: async function () {
     const self = this
@@ -115,7 +110,7 @@
                 console.log(response)
  
                 if (response.data.status == "success") {
-                    store.commit("setContacts", response.data.contacts)
+                    this.contacts = response.data.contacts
                 } else {
                     swal.fire("Error", response.data.message, "error");
                 }

@@ -2,8 +2,7 @@ const mongodb = require("mongodb");
 const ObjectId = mongodb.ObjectId;
  
 const auth = require("./auth");
-require("./globals");
-const fileSystem = require('fs');
+const fileSystem = require("fs");
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc'; 
 const key = "i-my-secret-key-for-chat-project"; 
@@ -32,56 +31,11 @@ let decrypt = function (text) {
     decryptedData += decipher.final("utf8");
     return decryptedData;
 };
-
-let base64Encode = function(file) {
-    var bitmap = fileSystem.readFileSync(file);
-    return new Buffer.from(bitmap).toString('base64');
-};
-
 module.exports = {
-    socketIO: null,
  
     init: function (app, express) {
         const self = this;
         const router = express.Router();
-
-        router.post("/attachment", auth, async function (request, result) {
-            const messageId = request.fields.messageId;
-            const user = request.user;
-         
-            const message = await db.collection("messages").findOne({
-                _id: ObjectId(messageId)
-            });
-         
-            if (message == null) {
-                result.status(404).json({
-                    status: "error",
-                    message: "Message not found."
-                });
-                return;
-            }
-         
-            const isSender = (message.sender._id == user._id.toString());
-            const isReceiver = (message.receiver._id == user._id.toString());
-         
-            if (!(isSender || isReceiver)) {
-                result.status(401).json({
-                    status: "error",
-                    message: "You are not authorized for viewing this attachment."
-                });
-                return;
-            }
-         
-            let attachment = message.attachment;
-            const base64Str = "data:" + attachment.type + ";base64," + base64Encode(attachment.path);
-            result.json({
-                status: "success",
-                message: "Attachment has been fetched",
-                base64Str: base64Str,
-                fileName: attachment.displayName
-            });
-        });
-
         router.post("/fetch", auth, async function (request, result) {
             const user = request.user;
             const email = request.fields.email;
@@ -124,12 +78,6 @@ module.exports = {
          
             const data = [];
             for (let a = 0; a < messages.length; a++) {
-                let attachment = null;
-                if (messages[a].attachment != null) {
-                    attachment = messages[a].attachment;
-                    attachment.path = baseURL + "/chat/attachment/" + messages[a]._id;
-                }
-                
                 data.push({
                     _id: messages[a]._id.toString(),
                     message: decrypt(messages[a].message),
@@ -142,7 +90,6 @@ module.exports = {
                         name: messages[a].receiver.name
                     },
                     isRead: messages[a].isRead,
-                    attachment: attachment,
                     createdAt: messages[a].createdAt
                 });
             }
@@ -292,12 +239,6 @@ module.exports = {
                 createdAt: createdAt
             };
          
-            if (typeof global.users[receiver.email] !== "undefined") {
-                self.socketIO.to(global.users[receiver.email]).emit("sendMessage", {
-                    title: "New message has been received.",
-                    data: messageObject
-                });
-            }
             result.json({
                 status: "success",
                 message: "Message has been sent.",

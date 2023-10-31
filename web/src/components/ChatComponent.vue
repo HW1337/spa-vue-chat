@@ -33,9 +33,6 @@
                                     </div>
                                     <div v-bind:class="'message ' + (user != null && user.email == msg.sender.email ? 'my-message float-right' : 'other-message')">
                                         <p v-text="msg.message" v-bind:class="(user != null && user.email == msg.sender.email ? 'text-right' : '')" style="margin-bottom: 0px;"></p>
-                                        <template v-if="msg.attachment != null">
-                                            <a href="javascript:void(0)" v-bind:data-id="msg._id" v-on:click.prevent="downloadAttachment" v-text="msg.attachment.displayName" class="text-info" target="_blank"></a>
-                                        </template>
                                     </div>
                                 </li>
                             </ul>
@@ -54,7 +51,6 @@
             </div>
         </div>
     </div>
-    <a v-bind:href="base64Str" ref="btnDownloadAttachment" v-bind:download="downloadFileName"></a>
 </template>
  
 <script>
@@ -62,8 +58,6 @@
     import "../../public/assets/css/chat.css"
     import axios from "axios"
     import swal from "sweetalert2"
-    import store from "../../vuex/store"
-	
  
     export default {
         data() {
@@ -71,58 +65,13 @@
                 message: "",
                 page: 0,
                 email: this.$route.params.email,
+                messages: [],
                 receiver: null,
                 attachment: null,
-                base64Str: "",
-                downloadFileName: ""
-            }
-        },
-
-        watch: {
-            $route: function (to, from) {
-                if (from.href.includes("/chat/")) {
-                    store.commit("setMessages", [])
-                }
-            }
-        },
-
-        computed: {
-            messages() {
-                return store.getters.getMessages
             }
         },
         methods: {
-            downloadAttachment: async function () {
-                const anchor = event.target
-                const id = anchor.getAttribute("data-id")
-                const originalHtml = anchor.innerHTML
-                anchor.innerHTML = "Loading..."
             
-                const formData = new FormData()
-                formData.append("messageId", id)
-                
-                const response = await axios.post(
-                    this.$apiURL + "/chat/attachment",
-                    formData,
-                    {
-                        headers: this.$headers
-                    }
-                )
-            
-                if (response.data.status == "success") {
-                    this.base64Str = response.data.base64Str
-                    this.downloadFileName = response.data.fileName
-                    
-                    const btnDownloadAttachment = this.$refs["btnDownloadAttachment"]
-                    setTimeout(function () {
-                        btnDownloadAttachment.click()
-                        anchor.innerHTML = originalHtml
-                    }, 500)
-                } else {
-                    swal.fire("Error", response.data.message, "error")
-                }
-            },
-
             fileSelected: function () {
             const files = event.target.files
             if (files.length > 0) {
@@ -154,16 +103,17 @@
                     {
                         headers: this.$headers
                     }
-                    )
+                )
                 //console.log(response)
             
                 if (response.data.status == "success") {
-
+                    if (response.data.status == "success") {
                         for (let a = 0; a < response.data.messages.length; a++) {
-                                store.commit("prependMessage", response.data.messages[a])
+                            this.messages.unshift(response.data.messages[a])
                         }
-                        this.receiver = response.data.receiver
-                        this.user = response.data.user
+    this.receiver = response.data.receiver
+    this.user = response.data.user
+}
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }
@@ -191,7 +141,7 @@
                     this.message = ""
                     this.attachment = null
                     document.getElementById("attachment").value = null
-                    store.commit("appendMessage", response.data.messageObject)
+                    this.messages.push(response.data.messageObject)
                 } else {
                     swal.fire("Error", response.data.message, "error")
                 }
